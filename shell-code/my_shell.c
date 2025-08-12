@@ -123,6 +123,10 @@ void kill_all_bg_processes(HashSet *set)
 	}
 }
 
+void handler(int sigint)
+{
+}
+
 /* Splits the string by space and returns the array of tokens
  *
  */
@@ -160,6 +164,8 @@ char **tokenize(char *line)
 
 int main(int argc, char *argv[])
 {
+
+	signal(SIGINT, handler);
 	char line[MAX_INPUT_SIZE];
 	char **tokens;
 	int i;
@@ -243,6 +249,15 @@ int main(int argc, char *argv[])
 		}
 		else if (pid == 0)
 		{
+			if (!InBackground)
+			{
+				signal(SIGINT, SIG_DFL);
+				
+			}
+			else{
+				setpgid(0,0);
+			}
+
 			execvp(tokens[0], tokens);
 			fflush(stdout);
 			perror("execvp failed");
