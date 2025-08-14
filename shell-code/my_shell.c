@@ -165,7 +165,7 @@ char **tokenize(char *line)
 int main(int argc, char *argv[])
 {
 
-	signal(SIGINT, handler);
+	// signal(SIGINT, handler);
 	char line[MAX_INPUT_SIZE];
 	char **tokens;
 	int i;
@@ -224,7 +224,13 @@ int main(int argc, char *argv[])
 			free(tokens);
 
 			kill_all_bg_processes(bg_ps);
-
+			while ((temp = waitpid(-1, &status, 0)) > 0)
+			{
+				printf("Background process with PID %d exited with status %d\n",
+					   temp, WEXITSTATUS(status));
+				fflush(stdout);
+			}
+			sleep(100);
 			free_set(bg_ps);
 			break;
 		}
@@ -252,10 +258,10 @@ int main(int argc, char *argv[])
 			if (!InBackground)
 			{
 				signal(SIGINT, SIG_DFL);
-				
 			}
-			else{
-				setpgid(0,0);
+			else
+			{
+				setpgid(0, 0);
 			}
 
 			execvp(tokens[0], tokens);
